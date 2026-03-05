@@ -1,171 +1,1113 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>David AI PRO</title>
-<style>
-body{
-margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:black;
-color:white;
-text-align:center;
-overflow-x:hidden;
-}
-canvas#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecosistema Guardián 🌱</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-header{
-padding:80px 20px;
-background:linear-gradient(120deg,#000428,#004e92);
-}
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
 
-h1{font-size:50px;}
-p{font-size:18px;opacity:0.9;max-width:700px;margin:auto;}
+        .game-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.8s ease;
+        }
 
-button{
-margin-top:15px;padding:12px 30px;border:none;border-radius:30px;background:#00eaff;
-cursor:pointer;font-size:16px;transition:0.3s;
-}
-button:hover{
-transform:scale(1.05); box-shadow:0 0 25px #00eaff;
-}
+        .game-header h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
 
-section{padding:50px 20px;}
-.cards{display:flex;flex-wrap:wrap;justify-content:center;gap:25px;margin-top:30px;}
-.card{background:#111;padding:20px;border-radius:15px;width:260px;box-shadow:0 0 20px rgba(0,255,255,0.2);transition:0.4s;text-align:center;}
-.card:hover{transform:translateY(-10px);box-shadow:0 0 35px rgba(0,255,255,0.5);}
-.card img{width:80px;height:80px;margin-bottom:15px;border-radius:10px;}
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
 
-/* SUBVENTANAS */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);padding:50px;overflow:auto;z-index:1000;}
-.modal-content{max-width:800px;margin:auto;background:#111;padding:40px;border-radius:15px;text-align:left;}
-.close{background:red;color:white;padding:10px 20px;border:none;border-radius:20px;margin-bottom:20px;cursor:pointer;}
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: transform 0.3s;
+            animation: fadeInUp 0.6s ease;
+        }
 
-/* CHAT IA SIMULADO */
-#chat{position:fixed;bottom:20px;right:20px;width:300px;background:#111;padding:20px;border-radius:15px;box-shadow:0 0 30px #00eaff;z-index:1000;}
-#chat h3{margin-top:0;}
-#chat-messages{height:150px;overflow-y:auto;border:1px solid #00eaff;padding:10px;margin-bottom:10px;}
-#chat-input{width:calc(100% - 20px);padding:8px;border:none;border-radius:10px;}
-#chat button{margin-top:5px;width:100%;padding:10px;border:none;border-radius:10px;background:#00eaff;cursor:pointer;}
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
 
-/* FOOTER */
-footer{padding:40px;background:#050505;margin-top:40px;}
-</style>
+        .stat-icon {
+            font-size: 1.5em;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .garden-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .plot {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #8B4513, #A0522D);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .plot:hover {
+            transform: scale(1.05);
+            border-color: #FFD700;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+        }
+
+        .plot.planted {
+            background: linear-gradient(145deg, #228B22, #32CD32);
+        }
+
+        .plot.watered {
+            background: linear-gradient(145deg, #1E90FF, #4169E1);
+            animation: pulse 2s infinite;
+        }
+
+        .plot.plant-ready {
+            background: linear-gradient(145deg, #FF69B4, #FF1493);
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .plot-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            pointer-events: none;
+        }
+
+        .plot-health {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 4px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .plot-health-bar {
+            height: 100%;
+            background: #00FF00;
+            transition: width 0.3s, background 0.3s;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel-section {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            animation: fadeInRight 0.6s ease;
+        }
+
+        .panel-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .seed-shop {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .seed-item {
+            background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .seed-item:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+
+        .seed-item.selected {
+            border-color: #667eea;
+            background: linear-gradient(145deg, #e8e8ff, #d0d0ff);
+        }
+
+        .seed-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .seed-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .seed-name {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .seed-cost {
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        .tools {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tool-icon {
+            font-size: 1.5em;
+        }
+
+        .events-log {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9em;
+        }
+
+        .event-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            animation: slideIn 0.3s ease;
+        }
+
+        .event-item.warning {
+            border-left-color: #ff6b6b;
+            background: #fff5f5;
+        }
+
+        .event-item.success {
+            border-left-color: #51cf66;
+            background: #f0fff4;
+        }
+
+        .pollinators-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .pollinator {
+            background: linear-gradient(145deg, #FFD700, #FFA500);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            animation: scaleIn 0.3s ease;
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px #FF69B4; }
+            to { box-shadow: 0 0 20px #FF1493, 0 0 30px #FF1493; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: particleFloat 1s ease-out forwards;
+            font-size: 1.2em;
+        }
+
+        @keyframes particleFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
+        }
+
+        .pest {
+            position: absolute;
+            font-size: 1.5em;
+            animation: pestMove 3s linear infinite;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+
+        .pest:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes pestMove {
+            0% { left: -30px; top: 50%; }
+            25% { left: 25%; top: 20%; }
+            50% { left: 50%; top: 50%; }
+            75% { left: 75%; top: 80%; }
+            100% { left: calc(100% + 30px); top: 50%; }
+        }
+
+        .combo-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            font-weight: 800;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none;
+            animation: comboPop 1s ease-out forwards;
+            z-index: 100;
+            display: none;
+        }
+
+        @keyframes comboPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-50px); }
+        }
+
+        .tutorial {
+            background: linear-gradient(145deg, #fff9e6, #fff3cd);
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .tutorial strong {
+            color: #856404;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="game-header">
+        <h1>🌿 Ecosistema Guardián 🌿</h1>
+        <p>Cultiva plantas, atrae polinizadores y protege tu jardín</p>
+    </div>
 
-<canvas id="matrix"></canvas>
+    <div class="stats-bar">
+        <div class="stat-card">
+            <span class="stat-icon">💰</span>
+            <span id="money">100</span> coins
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🌱</span>
+            <span id="plants-grown">0</span> plantas
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🦋</span>
+            <span id="pollinators">0</span> polinizadores
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">⭐</span>
+            Nivel <span id="level">1</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🎯</span>
+            <span id="score">0</span> pts
+        </div>
+    </div>
 
-<header>
-<h1>DAVID AI PRO</h1>
-<p>Portal tecnológico futurista con Inteligencia Artificial interactiva, información educativa y diseño profesional.</p>
-</header>
+    <div class="game-container">
+        <div class="garden-grid" id="garden"></div>
+        
+        <div class="side-panel">
+            <div class="panel-section">
+                <h3>🛠️ Herramientas</h3>
+                <div class="tools">
+                    <button class="tool-btn active" onclick="selectTool('plant')">
+                        <span class="tool-icon">🌱</span>
+                        <span>Plantar</span>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('water')">
+                        <span class="tool-icon">💧</span>
+                        <span>Regar</span>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('harvest')">
+                        <span class="tool-icon">🧺</span>
+                        <span>Cosechar</span>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('pest')">
+                        <span class="tool-icon">🛡️</span>
+                        <span>Proteger</span>
+                    </button>
+                </div>
+            </div>
 
-<section>
-<h2>Servicios Tecnológicos</h2>
-<p>Explora nuestras áreas de innovación y tecnología avanzada.</p>
+            <div class="panel-section">
+                <h3>🌰 Tienda de Semillas</h3>
+                <div class="seed-shop" id="seedShop"></div>
+            </div>
 
-<div class="cards">
+            <div class="panel-section">
+                <h3>🦋 Polinizadores Activos</h3>
+                <div class="pollinators-bar" id="pollinatorsList">
+                    <p style="color: #666; font-size: 0.9em;">Atrae polinizadores plantando flores...</p>
+                </div>
+                <div style="margin-top: 10px; font-size: 0.85em; color: #666;">
+                    Bonus de crecimiento: <span id="pollinatorBonus">0</span>%
+                </div>
+            </div>
 
-<div class="card">
-<img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Artificial_Intelligence_Logo.png" alt="IA">
-<h3>Inteligencia Artificial</h3>
-<p>Aprendizaje automático y análisis de datos.</p>
-<button onclick="openModal('ia')">Ver más</button>
-</div>
+            <div class="panel-section">
+                <h3>📜 Eventos</h3>
+                <div class="events-log" id="eventsLog"></div>
+            </div>
 
-<div class="card">
-<img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/HTML5_logo_and_wordmark.svg" alt="Web">
-<h3>Desarrollo Web</h3>
-<p>Páginas modernas y adaptables.</p>
-<button onclick="openModal('web')">Ver más</button>
-</div>
+            <div class="panel-section tutorial">
+                <strong>💡 Cómo jugar:</strong><br>
+                1. Selecciona una semilla y haz clic en una parcela para plantar<br>
+                2. Riega las plantas regularmente (se ponen azules cuando necesitan agua)<br>
+                3. Cosecha cuando estén rosadas brillantes<br>
+                4. Haz clic en las plagas rápidamente para eliminarlas<br>
+                5. Las flores atraen polinizadores que aceleran el crecimiento
+            </div>
+        </div>
+    </div>
 
-<div class="card">
-<img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Automation_icon.svg" alt="Automatización">
-<h3>Automatización</h3>
-<p>Procesos digitales inteligentes.</p>
-<button onclick="openModal('auto')">Ver más</button>
-</div>
+    <div class="modal" id="levelModal">
+        <div class="modal-content">
+            <h2>🎉 ¡Nivel Completado!</h2>
+            <p>Has alcanzado el nivel <span id="newLevel">2</span></p>
+            <p>Has desbloqueado nuevas semillas y características</p>
+            <button class="btn-primary" onclick="closeModal()">Continuar</button>
+        </div>
+    </div>
 
-<div class="card">
-<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Blockchain_logo.png" alt="Blockchain">
-<h3>Blockchain</h3>
-<p>Registros descentralizados y seguros.</p>
-<button onclick="openModal('blockchain')">Ver más</button>
-</div>
+    <div class="combo-display" id="comboDisplay"></div>
 
-<div class="card">
-<img src="https://upload.wikimedia.org/wikipedia/commons/f/fc/Future_technology_icon.svg" alt="Futuro">
-<h3>Tendencias Futuras</h3>
-<p>Innovaciones emergentes y disruptivas.</p>
-<button onclick="openModal('futuro')">Ver más</button>
-</div>
+    <script>
+        // Configuración del juego
+        const CONFIG = {
+            gridSize: 24, // 6x4
+            tickRate: 1000, // 1 segundo
+            pestChance: 0.05,
+            maxHealth: 100,
+            levelThresholds: [0, 500, 1500, 3000, 5000, 8000]
+        };
 
-</div>
-</section>
+        // Tipos de plantas
+        const PLANT_TYPES = {
+            sunflower: {
+                id: 'sunflower',
+                name: 'Girasol',
+                icon: '🌻',
+                cost: 20,
+                sellPrice: 45,
+                growTime: 8000,
+                waterNeed: 3000,
+                color: '#FFD700',
+                unlockLevel: 1,
+                type: 'flower',
+                pollinatorChance: 0.3
+            },
+            rose: {
+                id: 'rose',
+                name: 'Rosa',
+                icon: '🌹',
+                cost: 50,
+                sellPrice: 120,
+                growTime: 12000,
+                waterNeed: 4000,
+                color: '#FF69B4',
+                unlockLevel: 2,
+                type: 'flower',
+                pollinatorChance: 0.5
+            },
+            lavender: {
+                id: 'lavender',
+                name: 'Lavanda',
+                icon: '🪻',
+                cost: 80,
+                sellPrice: 200,
+                growTime: 15000,
+                waterNeed: 5000,
+                color: '#9370DB',
+                unlockLevel: 3,
+                type: 'flower',
+                pollinatorChance: 0.7
+            },
+            tomato: {
+                id: 'tomate',
+                name: 'Tomate',
+                icon: '🍅',
+                cost: 30,
+                sellPrice: 70,
+                growTime: 10000,
+                waterNeed: 3500,
+                color: '#FF6347',
+                unlockLevel: 1,
+                type: 'vegetable',
+                pollinatorChance: 0.1
+            },
+            carrot: {
+                id: 'carrot',
+                name: 'Zanahoria',
+                icon: '🥕',
+                cost: 40,
+                sellPrice: 95,
+                growTime: 11000,
+                waterNeed: 4000,
+                color: '#FFA500',
+                unlockLevel: 2,
+                type: 'vegetable',
+                pollinatorChance: 0.1
+            },
+            corn: {
+                id: 'corn',
+                name: 'Maíz',
+                icon: '🌽',
+                cost: 100,
+                sellPrice: 250,
+                growTime: 20000,
+                waterNeed: 6000,
+                color: '#FFD700',
+                unlockLevel: 4,
+                type: 'vegetable',
+                pollinatorChance: 0.2
+            }
+        };
 
-<!-- SUBVENTANAS -->
-<div id="ia" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('ia')">Cerrar</button><h2>Inteligencia Artificial</h2><ul><li>Asistentes virtuales y chatbots</li><li>Procesamiento de lenguaje natural</li><li>Automatización empresarial</li><li>Generación de contenido creativo</li><li>Redes neuronales y deep learning</li></ul></div></div>
+        // Estado del juego
+        let gameState = {
+            money: 100,
+            score: 0,
+            level: 1,
+            plantsGrown: 0,
+            selectedTool: 'plant',
+            selectedSeed: 'sunflower',
+            plots: [],
+            pollinators: [],
+            combo: 0,
+            lastAction: 0,
+            pestsKilled: 0
+        };
 
-<div id="web" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('web')">Cerrar</button><h2>Desarrollo Web</h2><ul><li>HTML, CSS, JavaScript</li><li>Frameworks: React, Vue, Angular</li><li>Backend y bases de datos</li><li>Optimización móvil y SEO</li></ul></div></div>
+        // Tipos de polinizadores
+        const POLLINATOR_TYPES = [
+            { name: 'Mariposa', icon: '🦋', bonus: 10 },
+            { name: 'Abeja', icon: '🐝', bonus: 15 },
+            { name: 'Colibrí', icon: '🐦', bonus: 20 },
+            { name: 'Escarabajo', icon: '🪲', bonus: 5 }
+        ];
 
-<div id="auto" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('auto')">Cerrar</button><h2>Automatización</h2><ul><li>Flujos automáticos</li><li>Integración con IA</li><li>Aumento de eficiencia</li><li>Optimización administrativa</li></ul></div></div>
+        // Inicialización
+        function init() {
+            createGrid();
+            createSeedShop();
+            startGameLoop();
+            updateUI();
+            logEvent('¡Bienvenido a tu jardín! Planta tu primera semilla.', 'success');
+        }
 
-<div id="blockchain" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('blockchain')">Cerrar</button><h2>Blockchain</h2><ul><li>Criptomonedas y tokens</li><li>Smart contracts</li><li>Seguridad de datos</li><li>Aplicaciones descentralizadas</li></ul></div></div>
+        function createGrid() {
+            const garden = document.getElementById('garden');
+            garden.innerHTML = '';
+            
+            for (let i = 0; i < CONFIG.gridSize; i++) {
+                const plot = document.createElement('div');
+                plot.className = 'plot';
+                plot.dataset.index = i;
+                plot.onclick = () => handlePlotClick(i);
+                
+                gameState.plots[i] = {
+                    planted: false,
+                    plantType: null,
+                    growth: 0,
+                    water: 100,
+                    health: 100,
+                    pests: [],
+                    ready: false
+                };
+                
+                garden.appendChild(plot);
+            }
+        }
 
-<div id="futuro" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('futuro')">Cerrar</button><h2>Tendencias Futuras</h2><ul><li>IA avanzada y ética</li><li>Robótica inteligente</li><li>Realidad aumentada y virtual</li><li>Computación cuántica</li><li>IoT y hogares inteligentes</li><li>Tecnología sostenible</li></ul></div></div>
+        function createSeedShop() {
+            const shop = document.getElementById('seedShop');
+            shop.innerHTML = '';
+            
+            Object.values(PLANT_TYPES).forEach(plant => {
+                const item = document.createElement('div');
+                item.className = 'seed-item';
+                if (plant.unlockLevel > gameState.level) {
+                    item.classList.add('locked');
+                } else if (plant.id === gameState.selectedSeed) {
+                    item.classList.add('selected');
+                }
+                
+                item.innerHTML = `
+                    <div class="seed-icon">${plant.icon}</div>
+                    <div class="seed-name">${plant.name}</div>
+                    <div class="seed-cost">${plant.unlockLevel > gameState.level ? 'Niv. ' + plant.unlockLevel : plant.cost + '💰'}</div>
+                `;
+                
+                if (plant.unlockLevel <= gameState.level) {
+                    item.onclick = () => selectSeed(plant.id);
+                }
+                
+                shop.appendChild(item);
+            });
+        }
 
-<!-- CHAT IA SIMULADO -->
-<div id="chat">
-<h3>Chat IA</h3>
-<div id="chat-messages"></div>
-<input type="text" id="chat-input" placeholder="Escribe tu mensaje...">
-<button onclick="sendMessage()">Enviar</button>
-</div>
+        function selectTool(tool) {
+            gameState.selectedTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.tool-btn').classList.add('active');
+        }
 
-<footer>
-<p>© 2026 David AI PRO • Plantilla Futurista • Innovación</p>
-</footer>
+        function selectSeed(seedId) {
+            if (PLANT_TYPES[seedId].unlockLevel <= gameState.level) {
+                gameState.selectedSeed = seedId;
+                createSeedShop();
+            }
+        }
 
-<script>
-// Subventanas
-function openModal(id){document.getElementById(id).style.display="block";}
-function closeModal(id){document.getElementById(id).style.display="none";}
+        function handlePlotClick(index) {
+            const plot = gameState.plots[index];
+            const plotEl = document.querySelectorAll('.plot')[index];
+            
+            switch(gameState.selectedTool) {
+                case 'plant':
+                    if (!plot.planted && gameState.money >= PLANT_TYPES[gameState.selectedSeed].cost) {
+                        plantSeed(index);
+                    } else if (plot.planted) {
+                        logEvent('Esta parcela ya tiene una planta', 'warning');
+                    } else {
+                        logEvent('No tienes suficiente dinero', 'warning');
+                    }
+                    break;
+                    
+                case 'water':
+                    if (plot.planted && !plot.ready) {
+                        waterPlant(index);
+                    }
+                    break;
+                    
+                case 'harvest':
+                    if (plot.ready) {
+                        harvestPlant(index);
+                    } else if (plot.planted) {
+                        logEvent('La planta aún no está lista para cosechar', 'warning');
+                    }
+                    break;
+                    
+                case 'pest':
+                    if (plot.pests.length > 0) {
+                        removePest(index);
+                    }
+                    break;
+            }
+        }
 
-// Chat IA simulado
-function sendMessage(){
-let input=document.getElementById("chat-input").value;
-if(input.trim()==="")return;
-let messages=document.getElementById("chat-messages");
-messages.innerHTML+="<b>Tú:</b> "+input+"<br>";
-messages.innerHTML+="<b>IA:</b> Procesando datos... 💻<br>";
-messages.scrollTop=messages.scrollHeight;
-document.getElementById("chat-input").value="";
-}
+        function plantSeed(index) {
+            const plantType = PLANT_TYPES[gameState.selectedSeed];
+            const plot = gameState.plots[index];
+            
+            gameState.money -= plantType.cost;
+            plot.planted = true;
+            plot.plantType = gameState.selectedSeed;
+            plot.growth = 0;
+            plot.water = 100;
+            plot.health = 100;
+            plot.ready = false;
+            
+            updatePlotVisual(index);
+            updateUI();
+            createParticle(index, '💰');
+            logEvent(`Plantaste ${plantType.name}`, 'success');
+            
+            checkCombo();
+        }
 
-// Fondo Matrix
-const canvas=document.getElementById("matrix");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-const cols=Math.floor(canvas.width/20); const yArr=Array(cols).fill(0);
+        function waterPlant(index) {
+            const plot = gameState.plots[index];
+            plot.water = Math.min(100, plot.water + 40);
+            plot.health = Math.min(100, plot.health + 10);
+            
+            updatePlotVisual(index);
+            createParticle(index, '💧');
+            
+            if (plot.water >= 90) {
+                logEvent('¡Planta bien hidratada!', 'success');
+            }
+        }
 
-function drawMatrix(){
-ctx.fillStyle="rgba(0,0,0,0.05)";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.fillStyle="#0F0"; ctx.font="20px monospace";
-yArr.forEach((y,i)=>{
-let text=String.fromCharCode(33+Math.random()*94);
-ctx.fillText(text,i*20,y);
-if(y>canvas.height+Math.random()*1000)yArr[i]=0;
-else yArr[i]+=20;
-});
-requestAnimationFrame(drawMatrix);
-}
-drawMatrix();
-</script>
+        function harvestPlant(index) {
+            const plot = gameState.plots[index];
+            const plantType = PLANT_TYPES[plot.plantType];
+            
+            const bonus = 1 + (gameState.pollinators.length * 0.1);
+            const earnings = Math.floor(plantType.sellPrice * bonus);
+            
+            gameState.money += earnings;
+            gameState.score += earnings;
+            gameState.plantsGrown++;
+            
+            // Chance de atraer polinizadores
+            if (plantType.type === 'flower' && Math.random() < plantType.pollinatorChance) {
+                attractPollinator();
+            }
+            
+            // Resetear parcela
+            plot.planted = false;
+            plot.plantType = null;
+            plot.growth = 0;
+            plot.ready = false;
+            plot.pests = [];
+            
+            updatePlotVisual(index);
+            updateUI();
+            createParticle(index, `+${earnings}💰`);
+            logEvent(`Cosechaste ${plantType.name} por ${earnings}💰`, 'success');
+            
+            checkLevelUp();
+            checkCombo();
+        }
 
+        function removePest(index) {
+            const plot = gameState.plots[index];
+            if (plot.pests.length > 0) {
+                plot.pests.pop();
+                gameState.pestsKilled++;
+                gameState.score += 10;
+                updatePlotVisual(index);
+                createParticle(index, '💀');
+                logEvent('¡Plaga eliminada!', 'success');
+                updateUI();
+            }
+        }
+
+        function attractPollinator() {
+            if (gameState.pollinators.length < 8) {
+                const type = POLLINATOR_TYPES[Math.floor(Math.random() * POLLINATOR_TYPES.length)];
+                gameState.pollinators.push({
+                    ...type,
+                    id: Date.now()
+                });
+                updatePollinatorsDisplay();
+                logEvent(`¡${type.name} atraída! +${type.bonus}% velocidad`, 'success');
+            }
+        }
+
+        function updatePollinatorsDisplay() {
+            const container = document.getElementById('pollinatorsList');
+            if (gameState.pollinators.length === 0) {
+                container.innerHTML = '<p style="color: #666; font-size: 0.9em;">Atrae polinizadores plantando flores...</p>';
+            } else {
+                container.innerHTML = gameState.pollinators.map(p => 
+                    `<span class="pollinator">${p.icon} ${p.name}</span>`
+                ).join('');
+            }
+            
+            const totalBonus = gameState.pollinators.reduce((sum, p) => sum + p.bonus, 0);
+            document.getElementById('pollinatorBonus').textContent = totalBonus;
+        }
+
+        function spawnPest() {
+            const availablePlots = gameState.plots
+                .map((p, i) => ({...p, index: i}))
+                .filter(p => p.planted && !p.ready && p.pests.length < 2);
+            
+            if (availablePlots.length > 0 && Math.random() < CONFIG.pestChance) {
+                const target = availablePlots[Math.floor(Math.random() * availablePlots.length)];
+                gameState.plots[target.index].pests.push({
+                    type: Math.random() > 0.5 ? 'gusano' : 'pulgon',
+                    health: 100
+                });
+                updatePlotVisual(target.index);
+                logEvent('¡Plaga detectada! Usa la herramienta de protección', 'warning');
+            }
+        }
+
+        function updatePlotVisual(index) {
+            const plot = gameState.plots[index];
+            const plotEl = document.querySelectorAll('.plot')[index];
+            
+            plotEl.className = 'plot';
+            plotEl.innerHTML = '';
+            
+            if (plot.planted) {
+                const plantType = PLANT_TYPES[plot.plantType];
+                
+                if (plot.ready) {
+                    plotEl.classList.add('plant-ready');
+                } else if (plot.water < 30) {
+                    plotEl.classList.add('planted');
+                } else {
+                    plotEl.classList.add('planted');
+                    if (plot.water > 80) plotEl.classList.add('watered');
+                }
+                
+                // Icono de planta según crecimiento
+                let icon = plantType.icon;
+                let scale = 0.5 + (plot.growth / plantType.growTime) * 0.5;
+                
+                const content = document.createElement('div');
+                content.className = 'plot-content';
+                content.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                content.textContent = icon;
+                plotEl.appendChild(content);
+                
+                // Barra de salud
+                const healthBar = document.createElement('div');
+                healthBar.className = 'plot-health';
+                const healthFill = document.createElement('div');
+                healthFill.className = 'plot-health-bar';
+                healthFill.style.width = plot.health + '%';
+                healthFill.style.background = plot.health > 60 ? '#00FF00' : plot.health > 30 ? '#FFD700' : '#FF0000';
+                healthBar.appendChild(healthFill);
+                plotEl.appendChild(healthBar);
+                
+                // Plagas
+                if (plot.pests.length > 0) {
+                    plot.pests.forEach((pest, i) => {
+                        const pestEl = document.createElement('div');
+                        pestEl.className = 'pest';
+                        pestEl.textContent = pest.type === 'gusano' ? '🐛' : '🪰';
+                        pestEl.style.top = (20 + i * 30) + '%';
+                        pestEl.style.animationDelay = (i * 0.5) + 's';
+                        pestEl.onclick = (e) => {
+                            e.stopPropagation();
+                            if (gameState.selectedTool === 'pest') {
+                                removePest(index);
+                            }
+                        };
+                        plotEl.appendChild(pestEl);
+                    });
+                }
+            }
+        }
+
+        function createParticle(plotIndex, text) {
+            const plot = document.querySelectorAll('.plot')[plotIndex];
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = text;
+            particle.style.left = '50%';
+            particle.style.top = '50%';
+            particle.style.transform = 'translate(-50%, -50%)';
+            plot.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        function checkCombo() {
+            const now = Date.now();
+            if (now - gameState.lastAction < 3000) {
+                gameState.combo++;
+                if (gameState.combo > 2) {
+                    const bonus = gameState.combo * 5;
+                    gameState.score += bonus;
+                    showCombo(gameState.combo);
+                    updateUI();
+                }
+            } else {
+                gameState.combo = 1;
+            }
+            gameState.lastAction = now;
+        }
+
+        function showCombo(combo) {
+            const display = document.getElementById('comboDisplay');
+            display.textContent = `¡Combo x${combo}!`;
+            display.style.display = 'block';
+            setTimeout(() => {
+                display.style.display = 'none';
+            }, 1000);
+        }
+
+        function checkLevelUp() {
+            const nextThreshold = CONFIG.levelThresholds[gameState.level];
+            if (gameState.score >= nextThreshold) {
+                gameState.level++;
+                document.getElementById('newLevel').textContent = gameState.level;
+                document.getElementById('levelModal').classList.add('active');
+                createSeedShop();
+                logEvent(`¡Subiste al nivel ${gameState.level}!`, 'success');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('levelModal').classList.remove('active');
+        }
+
+        function logEvent(message, type = '') {
+            const log = document.getElementById('eventsLog');
+            const entry = document.createElement('div');
+            entry.className = 'event-item ' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            
+            if (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('money').textContent = gameState.money;
+            document.getElementById('plants-grown').textContent = gameState.plantsGrown;
+            document.getElementById('pollinators').textContent = gameState.pollinators.length;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('score').textContent = gameState.score;
+        }
+
+        function startGameLoop() {
+            setInterval(() => {
+                // Actualizar plantas
+                gameState.plots.forEach((plot, index) => {
+                    if (plot.planted && !plot.ready) {
+                        const plantType = PLANT_TYPES[plot.plantType];
+                        
+                        // Reducir agua
+                        plot.water = Math.max(0, plot.water - 2);
+                        
+                        // Daño por falta de agua
+                        if (plot.water === 0) {
+                            plot.health -= 5;
+                        }
+                        
+                        // Daño por plagas
+                        if (plot.pests.length > 0) {
+                            plot.health -= 3 * plot.pests.length;
+                            plot.growth = Math.max(0, plot.growth - 50);
+                        }
+                        
+                        // Crecimiento
+                        if (plot.health > 0) {
+                            const pollinatorBonus = 1 + (gameState.pollinators.reduce((sum, p) => sum + p.bonus, 0) / 100);
+                            plot.growth += (100 * pollinatorBonus);
+                            
+                            if (plot.growth >= plantType.growTime) {
+                                plot.ready = true;
+                                logEvent(`¡${plantType.name} lista para cosechar!`, 'success');
+                            }
+                        } else {
+                            // Planta muere
+                            plot.planted = false;
+                            plot.plantType = null;
+                            logEvent('Una planta ha muerto por descuido 😢', 'warning');
+                        }
+                        
+                        updatePlotVisual(index);
+                    }
+                });
+                
+                // Spawn plagas
+                spawnPest();
+                
+            }, CONFIG.tickRate);
+        }
+
+        // Iniciar juego
+        init();
+    </script>
 </body>
 </html>
