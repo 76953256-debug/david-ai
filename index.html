@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAVID CYBER SYSTEM</title>
+
+<style>
+
+body{
+margin:0;
+background:black;
+color:#00ff9c;
+font-family:monospace;
+overflow:hidden;
+}
+
+#login{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+flex-direction:column;
+}
+
+input{
+padding:12px;
+margin:10px;
+background:black;
+border:1px solid #00ff9c;
+color:#00ff9c;
+}
+
+button{
+padding:10px 30px;
+background:#00ff9c;
+border:none;
+cursor:pointer;
+}
+
+#terminal{
+display:none;
+padding:40px;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div id="login">
+
+<h1>SISTEMA SEGURO</h1>
+
+<input type="text" placeholder="usuario" id="user">
+
+<input type="password" placeholder="contraseña" id="pass">
+
+<button onclick="login()">ACCEDER</button>
+
+</div>
+
+<div id="terminal">
+
+<h2>ACCESO CONCEDIDO</h2>
+
+<p>Bienvenido al sistema David Cyber</p>
+
+<p>> Inicializando sistema...</p>
+<p>> Conectando red segura...</p>
+<p>> Acceso root activado...</p>
+
+</div>
+
+<script>
+
+function login(){
+
+var u=document.getElementById("user").value;
+var p=document.getElementById("pass").value;
+
+if(u=="admin" && p=="1234"){
+
+document.getElementById("login").style.display="none";
+document.getElementById("terminal").style.display="block";
+
+}else{
+
+alert("Acceso denegado");
+
+}
+
+}
+
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+
+canvas.height=window.innerHeight;
+canvas.width=window.innerWidth;
+
+const letters="01DAVID";
+const fontSize=14;
+const columns=canvas.width/fontSize;
+
+const drops=[];
+
+for(let x=0;x<columns;x++)
+drops[x]=1;
+
+function draw(){
+
+ctx.fillStyle="rgba(0,0,0,0.05)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle="#00ff9c";
+ctx.font=fontSize+"px monospace";
+
+for(let i=0;i<drops.length;i++){
+
+const text=letters[Math.floor(Math.random()*letters.length)];
+
+ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+drops[i]=0;
+
+drops[i]++;
+
+}
+
+}
+
+setInterval(draw,33);
+
+</script>
+
+</body>
+</html><html>
+
+</html><html>
+
+</html>
