@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>David AI - Portal Tecnológico</title>
-
+<title>David AI PRO</title>
 <style>
 body{
 margin:0;
@@ -13,171 +11,160 @@ font-family:Arial, Helvetica, sans-serif;
 background:black;
 color:white;
 text-align:center;
+overflow-x:hidden;
 }
+canvas#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;}
 
 header{
-padding:100px 20px;
+padding:80px 20px;
 background:linear-gradient(120deg,#000428,#004e92);
 }
 
-h1{font-size:55px;}
-p{font-size:18px; opacity:0.9; max-width:700px; margin:auto;}
-button{margin-top:20px;padding:12px 30px;border:none;border-radius:30px;background:#00eaff;cursor:pointer;font-size:16px;}
-button:hover{transform:scale(1.05);box-shadow:0 0 20px #00eaff;transition:0.3s;}
+h1{font-size:50px;}
+p{font-size:18px;opacity:0.9;max-width:700px;margin:auto;}
 
-section{padding:60px 20px;}
-.cards{display:flex;flex-wrap:wrap;justify-content:center;gap:30px;margin-top:30px;}
-.card{background:#111;padding:30px;width:260px;border-radius:15px;box-shadow:0 0 20px rgba(0,255,255,0.2);transition:0.4s;}
-.card:hover{transform:translateY(-10px);box-shadow:0 0 30px rgba(0,255,255,0.6);}
-.card button{margin-top:15px;}
+button{
+margin-top:15px;padding:12px 30px;border:none;border-radius:30px;background:#00eaff;
+cursor:pointer;font-size:16px;transition:0.3s;
+}
+button:hover{
+transform:scale(1.05); box-shadow:0 0 25px #00eaff;
+}
+
+section{padding:50px 20px;}
+.cards{display:flex;flex-wrap:wrap;justify-content:center;gap:25px;margin-top:30px;}
+.card{background:#111;padding:20px;border-radius:15px;width:260px;box-shadow:0 0 20px rgba(0,255,255,0.2);transition:0.4s;text-align:center;}
+.card:hover{transform:translateY(-10px);box-shadow:0 0 35px rgba(0,255,255,0.5);}
+.card img{width:80px;height:80px;margin-bottom:15px;border-radius:10px;}
 
 /* SUBVENTANAS */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);padding:50px;overflow:auto;z-index:1000;}
 .modal-content{max-width:800px;margin:auto;background:#111;padding:40px;border-radius:15px;text-align:left;}
 .close{background:red;color:white;padding:10px 20px;border:none;border-radius:20px;margin-bottom:20px;cursor:pointer;}
 
+/* CHAT IA SIMULADO */
+#chat{position:fixed;bottom:20px;right:20px;width:300px;background:#111;padding:20px;border-radius:15px;box-shadow:0 0 30px #00eaff;z-index:1000;}
+#chat h3{margin-top:0;}
+#chat-messages{height:150px;overflow-y:auto;border:1px solid #00eaff;padding:10px;margin-bottom:10px;}
+#chat-input{width:calc(100% - 20px);padding:8px;border:none;border-radius:10px;}
+#chat button{margin-top:5px;width:100%;padding:10px;border:none;border-radius:10px;background:#00eaff;cursor:pointer;}
+
 /* FOOTER */
 footer{padding:40px;background:#050505;margin-top:40px;}
 </style>
-
 </head>
 
 <body>
 
+<canvas id="matrix"></canvas>
+
 <header>
-<h1>DAVID AI</h1>
-<p>Portal tecnológico dedicado a la Inteligencia Artificial, Desarrollo Web, Automatización, Blockchain y Tendencias del Futuro.</p>
+<h1>DAVID AI PRO</h1>
+<p>Portal tecnológico futurista con Inteligencia Artificial interactiva, información educativa y diseño profesional.</p>
 </header>
 
 <section>
 <h2>Servicios Tecnológicos</h2>
-<p>Explora las distintas áreas de tecnología y cómo impactan la vida digital moderna.</p>
+<p>Explora nuestras áreas de innovación y tecnología avanzada.</p>
 
 <div class="cards">
+
 <div class="card">
+<img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Artificial_Intelligence_Logo.png" alt="IA">
 <h3>Inteligencia Artificial</h3>
-<p>Sistemas que aprenden y analizan datos para automatizar procesos.</p>
+<p>Aprendizaje automático y análisis de datos.</p>
 <button onclick="openModal('ia')">Ver más</button>
 </div>
 
 <div class="card">
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/HTML5_logo_and_wordmark.svg" alt="Web">
 <h3>Desarrollo Web</h3>
-<p>Páginas modernas, rápidas y adaptables a cualquier dispositivo.</p>
+<p>Páginas modernas y adaptables.</p>
 <button onclick="openModal('web')">Ver más</button>
 </div>
 
 <div class="card">
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Automation_icon.svg" alt="Automatización">
 <h3>Automatización</h3>
-<p>Procesos digitales automáticos para optimizar negocios.</p>
+<p>Procesos digitales inteligentes.</p>
 <button onclick="openModal('auto')">Ver más</button>
 </div>
 
 <div class="card">
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Blockchain_logo.png" alt="Blockchain">
 <h3>Blockchain</h3>
-<p>Tecnología de registros digitales seguros y descentralizados.</p>
+<p>Registros descentralizados y seguros.</p>
 <button onclick="openModal('blockchain')">Ver más</button>
 </div>
 
 <div class="card">
+<img src="https://upload.wikimedia.org/wikipedia/commons/f/fc/Future_technology_icon.svg" alt="Futuro">
 <h3>Tendencias Futuras</h3>
-<p>Innovaciones emergentes que transformarán la tecnología.</p>
+<p>Innovaciones emergentes y disruptivas.</p>
 <button onclick="openModal('futuro')">Ver más</button>
 </div>
+
 </div>
 </section>
 
-<!-- SUBVENTANA IA -->
-<div id="ia" class="modal">
-<div class="modal-content">
-<button class="close" onclick="closeModal('ia')">Cerrar</button>
-<h2>Inteligencia Artificial</h2>
-<p>La IA permite que las máquinas simulen la inteligencia humana para aprender, analizar datos y tomar decisiones. Actualmente se aplica en:</p>
-<ul>
-<li>Asistentes virtuales y chatbots</li>
-<li>Reconocimiento facial y de voz</li>
-<li>Procesamiento de lenguaje natural</li>
-<li>Automatización industrial y empresarial</li>
-<li>Generación de contenido creativo y multimedia</li>
-</ul>
-<p>Las herramientas de IA evolucionan constantemente, integrando aprendizaje profundo (deep learning) y redes neuronales para mejorar resultados.</p>
-</div>
-</div>
+<!-- SUBVENTANAS -->
+<div id="ia" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('ia')">Cerrar</button><h2>Inteligencia Artificial</h2><ul><li>Asistentes virtuales y chatbots</li><li>Procesamiento de lenguaje natural</li><li>Automatización empresarial</li><li>Generación de contenido creativo</li><li>Redes neuronales y deep learning</li></ul></div></div>
 
-<!-- SUBVENTANA WEB -->
-<div id="web" class="modal">
-<div class="modal-content">
-<button class="close" onclick="closeModal('web')">Cerrar</button>
-<h2>Desarrollo Web</h2>
-<p>El desarrollo web incluye la creación de sitios y aplicaciones que funcionan en internet. Se enfoca en:</p>
-<ul>
-<li>Diseño responsivo y atractivo</li>
-<li>Optimización para móviles y desktop</li>
-<li>Programación frontend: HTML, CSS, JavaScript</li>
-<li>Backend y bases de datos</li>
-<li>Frameworks modernos como React, Vue y Angular</li>
-</ul>
-<p>Una web moderna combina velocidad, estética y funcionalidad para ofrecer la mejor experiencia al usuario.</p>
-</div>
-</div>
+<div id="web" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('web')">Cerrar</button><h2>Desarrollo Web</h2><ul><li>HTML, CSS, JavaScript</li><li>Frameworks: React, Vue, Angular</li><li>Backend y bases de datos</li><li>Optimización móvil y SEO</li></ul></div></div>
 
-<!-- SUBVENTANA AUTOMATIZACION -->
-<div id="auto" class="modal">
-<div class="modal-content">
-<button class="close" onclick="closeModal('auto')">Cerrar</button>
-<h2>Automatización Digital</h2>
-<p>La automatización reduce la intervención humana en tareas repetitivas mediante software:</p>
-<ul>
-<li>Flujos de trabajo automáticos en empresas</li>
-<li>Optimización de procesos administrativos</li>
-<li>Integración con IA para decisiones inteligentes</li>
-<li>Reducción de errores y aumento de eficiencia</li>
-</ul>
-<p>Esta tecnología es clave para aumentar productividad y modernizar sistemas empresariales.</p>
-</div>
-</div>
+<div id="auto" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('auto')">Cerrar</button><h2>Automatización</h2><ul><li>Flujos automáticos</li><li>Integración con IA</li><li>Aumento de eficiencia</li><li>Optimización administrativa</li></ul></div></div>
 
-<!-- SUBVENTANA BLOCKCHAIN -->
-<div id="blockchain" class="modal">
-<div class="modal-content">
-<button class="close" onclick="closeModal('blockchain')">Cerrar</button>
-<h2>Blockchain</h2>
-<p>Blockchain es una tecnología de registro distribuido, segura y transparente:</p>
-<ul>
-<li>Criptomonedas y activos digitales</li>
-<li>Contratos inteligentes (smart contracts)</li>
-<li>Seguridad de datos y transparencia</li>
-<li>Aplicaciones en finanzas, salud y logística</li>
-<li>Sistemas descentralizados sin intermediarios</li>
-</ul>
-<p>Su importancia crece en la economía digital moderna y el desarrollo de nuevas aplicaciones seguras.</p>
-</div>
-</div>
+<div id="blockchain" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('blockchain')">Cerrar</button><h2>Blockchain</h2><ul><li>Criptomonedas y tokens</li><li>Smart contracts</li><li>Seguridad de datos</li><li>Aplicaciones descentralizadas</li></ul></div></div>
 
-<!-- SUBVENTANA FUTURO -->
-<div id="futuro" class="modal">
-<div class="modal-content">
-<button class="close" onclick="closeModal('futuro')">Cerrar</button>
-<h2>Tendencias Futuras</h2>
-<p>Las tendencias tecnológicas del futuro incluyen:</p>
-<ul>
-<li>Inteligencia Artificial avanzada y ética</li>
-<li>Robótica colaborativa y automatización inteligente</li>
-<li>Realidad aumentada y virtual en educación y entretenimiento</li>
-<li>Computación cuántica y su impacto en seguridad y análisis de datos</li>
-<li>Internet de las cosas (IoT) y hogares inteligentes</li>
-<li>Energías limpias y tecnología sostenible</li>
-</ul>
-<p>Estas innovaciones transformarán la manera en que trabajamos, aprendemos y vivimos.</p>
-</div>
+<div id="futuro" class="modal"><div class="modal-content"><button class="close" onclick="closeModal('futuro')">Cerrar</button><h2>Tendencias Futuras</h2><ul><li>IA avanzada y ética</li><li>Robótica inteligente</li><li>Realidad aumentada y virtual</li><li>Computación cuántica</li><li>IoT y hogares inteligentes</li><li>Tecnología sostenible</li></ul></div></div>
+
+<!-- CHAT IA SIMULADO -->
+<div id="chat">
+<h3>Chat IA</h3>
+<div id="chat-messages"></div>
+<input type="text" id="chat-input" placeholder="Escribe tu mensaje...">
+<button onclick="sendMessage()">Enviar</button>
 </div>
 
 <footer>
-<p>© 2026 David AI • Portal Tecnológico • Innovación</p>
+<p>© 2026 David AI PRO • Plantilla Futurista • Innovación</p>
 </footer>
 
 <script>
+// Subventanas
 function openModal(id){document.getElementById(id).style.display="block";}
 function closeModal(id){document.getElementById(id).style.display="none";}
+
+// Chat IA simulado
+function sendMessage(){
+let input=document.getElementById("chat-input").value;
+if(input.trim()==="")return;
+let messages=document.getElementById("chat-messages");
+messages.innerHTML+="<b>Tú:</b> "+input+"<br>";
+messages.innerHTML+="<b>IA:</b> Procesando datos... 💻<br>";
+messages.scrollTop=messages.scrollHeight;
+document.getElementById("chat-input").value="";
+}
+
+// Fondo Matrix
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+const cols=Math.floor(canvas.width/20); const yArr=Array(cols).fill(0);
+
+function drawMatrix(){
+ctx.fillStyle="rgba(0,0,0,0.05)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle="#0F0"; ctx.font="20px monospace";
+yArr.forEach((y,i)=>{
+let text=String.fromCharCode(33+Math.random()*94);
+ctx.fillText(text,i*20,y);
+if(y>canvas.height+Math.random()*1000)yArr[i]=0;
+else yArr[i]+=20;
+});
+requestAnimationFrame(drawMatrix);
+}
+drawMatrix();
 </script>
 
 </body>
