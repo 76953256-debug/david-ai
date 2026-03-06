@@ -3,7 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosistema Guardián 🌱</title>
+    <meta name="description" content="Ecosistema Guardián - Juego de gestión de ecosistemas. Cultiva plantas, atrae polinizadores y protege tu jardín.">
+    <meta name="keywords" content="juego, jardín, ecosistema, naturaleza, plantas, polinizadores, html5, javascript">
+    <meta name="author" content="Tu Nombre">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tu-usuario.github.io/ecosistema-guardian/">
+    <meta property="og:title" content="Ecosistema Guardián 🌿">
+    <meta property="og:description" content="Cultiva tu jardín, atrae polinizadores y protege el ecosistema en este juego gratuito">
+    <meta property="og:image" content="https://tu-usuario.github.io/ecosistema-guardian/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://tu-usuario.github.io/ecosistema-guardian/">
+    <meta property="twitter:title" content="Ecosistema Guardián 🌿">
+    <meta property="twitter:description" content="Cultiva tu jardín, atrae polinizadores y protege el ecosistema en este juego gratuito">
+    <meta property="twitter:image" content="https://tu-usuario.github.io/ecosistema-guardian/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <title>Ecosistema Guardián 🌿 - Juego de Gestión de Ecosistemas</title>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
         
@@ -370,6 +396,30 @@
             font-weight: 600;
         }
 
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .sound-toggle.muted {
+            background: #ff6b6b;
+        }
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -484,6 +534,8 @@
     </style>
 </head>
 <body>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+    
     <div class="game-header">
         <h1>🌿 Ecosistema Guardián 🌿</h1>
         <p>Cultiva plantas, atrae polinizadores y protege tu jardín</p>
@@ -581,10 +633,183 @@
     <div class="combo-display" id="comboDisplay"></div>
 
     <script>
+        // ===== SISTEMA DE AUDIO =====
+        const AudioSys = {
+            ctx: null,
+            enabled: true,
+            initialized: false,
+            
+            init() {
+                if (!this.initialized) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    this.initialized = true;
+                }
+            },
+            
+            toggle() {
+                this.enabled = !this.enabled;
+                return this.enabled;
+            },
+            
+            playTone(freq, type, duration, volume = 0.3) {
+                if (!this.enabled || !this.ctx) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.frequency.value = freq;
+                osc.type = type;
+                
+                gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+            
+            playPlant() {
+                // Sonido suave de plantar (sierra baja)
+                this.playTone(220, 'triangle', 0.3, 0.2);
+                setTimeout(() => this.playTone(330, 'triangle', 0.2, 0.15), 100);
+            },
+            
+            playWater() {
+                // Sonido de agua (ruido filtrado + onda)
+                if (!this.enabled || !this.ctx) return;
+                
+                const bufferSize = this.ctx.sampleRate * 0.5;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 1000;
+                
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                noise.start();
+                
+                // Tono de burbuja
+                this.playTone(800, 'sine', 0.1, 0.1);
+                setTimeout(() => this.playTone(600, 'sine', 0.15, 0.1), 100);
+            },
+            
+            playHarvest() {
+                // Sonido brillante de cosecha
+                this.playTone(523.25, 'sine', 0.1, 0.3); // Do
+                setTimeout(() => this.playTone(659.25, 'sine', 0.1, 0.3), 100); // Mi
+                setTimeout(() => this.playTone(783.99, 'sine', 0.2, 0.3), 200); // Sol
+                setTimeout(() => this.playTone(1046.50, 'sine', 0.4, 0.2), 300); // Do alta
+            },
+            
+            playPestKill() {
+                // Sonido de aplastar
+                this.playTone(150, 'sawtooth', 0.1, 0.3);
+                setTimeout(() => this.playTone(100, 'square', 0.15, 0.2), 50);
+            },
+            
+            playLevelUp() {
+                // Fanfarria de victoria
+                const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                notes.forEach((freq, i) => {
+                    setTimeout(() => this.playTone(freq, 'sine', 0.3, 0.2), i * 150);
+                    setTimeout(() => this.playTone(freq * 1.5, 'triangle', 0.3, 0.15), i * 150 + 50);
+                });
+            },
+            
+            playPollinator() {
+                // Sonido alegre de polinizador
+                this.playTone(880, 'sine', 0.1, 0.15);
+                setTimeout(() => this.playTone(1108.73, 'sine', 0.15, 0.15), 100);
+                setTimeout(() => this.playTone(1318.51, 'sine', 0.2, 0.15), 200);
+            },
+            
+            playError() {
+                // Sonido de error suave
+                this.playTone(200, 'sawtooth', 0.2, 0.15);
+                setTimeout(() => this.playTone(150, 'sawtooth', 0.2, 0.15), 100);
+            },
+            
+            playCombo() {
+                // Sonido ascendente rápido
+                this.playTone(440, 'sine', 0.05, 0.2);
+                setTimeout(() => this.playTone(554.37, 'sine', 0.05, 0.2), 50);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.1, 0.2), 100);
+                setTimeout(() => this.playTone(880, 'sine', 0.2, 0.2), 150);
+            },
+            
+            playBackground() {
+                // Ambiente suave de naturaleza (loop muy sutil)
+                if (!this.enabled || !this.ctx) return;
+                
+                // Crear oscilador de baja frecuencia para "viento"
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.frequency.value = 100;
+                osc.type = 'sine';
+                
+                // LFO para modulación
+                const lfo = this.ctx.createOscillator();
+                const lfoGain = this.ctx.createGain();
+                lfo.frequency.value = 0.1;
+                lfoGain.gain.value = 50;
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                
+                gain.gain.value = 0.02; // Muy suave
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start();
+                lfo.start();
+                
+                return { osc, lfo, gain };
+            }
+        };
+
+        function toggleSound() {
+            const btn = document.getElementById('soundToggle');
+            const enabled = AudioSys.toggle();
+            
+            if (enabled) {
+                btn.textContent = '🔊';
+                btn.classList.remove('muted');
+                logEvent('Sonido activado', 'success');
+            } else {
+                btn.textContent = '🔇';
+                btn.classList.add('muted');
+                logEvent('Sonido desactivado', 'warning');
+            }
+        }
+
+        // Inicializar audio en primera interacción
+        document.addEventListener('click', () => {
+            AudioSys.init();
+        }, { once: true });
+
         // Configuración del juego
         const CONFIG = {
-            gridSize: 24, // 6x4
-            tickRate: 1000, // 1 segundo
+            gridSize: 24,
+            tickRate: 1000,
             pestChance: 0.05,
             maxHealth: 100,
             levelThresholds: [0, 500, 1500, 3000, 5000, 8000]
@@ -771,6 +996,9 @@
         }
 
         function handlePlotClick(index) {
+            // Inicializar audio si no está listo
+            AudioSys.init();
+            
             const plot = gameState.plots[index];
             const plotEl = document.querySelectorAll('.plot')[index];
             
@@ -779,8 +1007,10 @@
                     if (!plot.planted && gameState.money >= PLANT_TYPES[gameState.selectedSeed].cost) {
                         plantSeed(index);
                     } else if (plot.planted) {
+                        AudioSys.playError();
                         logEvent('Esta parcela ya tiene una planta', 'warning');
                     } else {
+                        AudioSys.playError();
                         logEvent('No tienes suficiente dinero', 'warning');
                     }
                     break;
@@ -795,6 +1025,7 @@
                     if (plot.ready) {
                         harvestPlant(index);
                     } else if (plot.planted) {
+                        AudioSys.playError();
                         logEvent('La planta aún no está lista para cosechar', 'warning');
                     }
                     break;
@@ -819,6 +1050,7 @@
             plot.health = 100;
             plot.ready = false;
             
+            AudioSys.playPlant();
             updatePlotVisual(index);
             updateUI();
             createParticle(index, '💰');
@@ -832,6 +1064,7 @@
             plot.water = Math.min(100, plot.water + 40);
             plot.health = Math.min(100, plot.health + 10);
             
+            AudioSys.playWater();
             updatePlotVisual(index);
             createParticle(index, '💧');
             
@@ -863,6 +1096,7 @@
             plot.ready = false;
             plot.pests = [];
             
+            AudioSys.playHarvest();
             updatePlotVisual(index);
             updateUI();
             createParticle(index, `+${earnings}💰`);
@@ -878,6 +1112,7 @@
                 plot.pests.pop();
                 gameState.pestsKilled++;
                 gameState.score += 10;
+                AudioSys.playPestKill();
                 updatePlotVisual(index);
                 createParticle(index, '💀');
                 logEvent('¡Plaga eliminada!', 'success');
@@ -892,6 +1127,7 @@
                     ...type,
                     id: Date.now()
                 });
+                AudioSys.playPollinator();
                 updatePollinatorsDisplay();
                 logEvent(`¡${type.name} atraída! +${type.bonus}% velocidad`, 'success');
             }
@@ -1006,6 +1242,7 @@
                 if (gameState.combo > 2) {
                     const bonus = gameState.combo * 5;
                     gameState.score += bonus;
+                    AudioSys.playCombo();
                     showCombo(gameState.combo);
                     updateUI();
                 }
@@ -1030,6 +1267,7 @@
                 gameState.level++;
                 document.getElementById('newLevel').textContent = gameState.level;
                 document.getElementById('levelModal').classList.add('active');
+                AudioSys.playLevelUp();
                 createSeedShop();
                 logEvent(`¡Subiste al nivel ${gameState.level}!`, 'success');
             }
@@ -1108,6 +1346,13 @@
 
         // Iniciar juego
         init();
+        
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registrado'))
+                .catch(err => console.log('Error:', err));
+        }
     </script>
 </body>
 </html>
